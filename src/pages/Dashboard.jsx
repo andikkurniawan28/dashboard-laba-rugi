@@ -1,127 +1,172 @@
 import React, { useEffect, useState } from "react";
 import { Line, Bar } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
 } from "chart.js";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
 );
 
-function Dashboard() {
-  const [dailyLabels, setDailyLabels] = useState([]);
-  const [monthlyLabels, setMonthlyLabels] = useState([]);
-  const [dailyRevenue, setDailyRevenue] = useState([]);
-  const [dailyExpense, setDailyExpense] = useState([]);
-  const [dailyProfit, setDailyProfit] = useState([]);
-  const [monthlyRevenue, setMonthlyRevenue] = useState([]);
-  const [monthlyExpense, setMonthlyExpense] = useState([]);
-  const [monthlyProfit, setMonthlyProfit] = useState([]);
+// ======================= InsightCards Component =======================
+const InsightCards = ({ insight }) => {
+    const format = (num) =>
+        (num ?? 0).toLocaleString("en", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
-  useEffect(() => {
-    fetch("http://localhost:3001/api/profitloss/stats")
-      .then((res) => res.json())
-      .then((data) => {
-        // daily
-        const dailyKeys = Object.keys(data.dailyRevenue).sort();
-        setDailyLabels(dailyKeys);
-        setDailyRevenue(dailyKeys.map((k) => data.dailyRevenue[k]));
-        setDailyExpense(dailyKeys.map((k) => data.dailyExpense[k]));
-        setDailyProfit(dailyKeys.map((k) => data.dailyProfitloss[k]));
+    const cards = [
+        { title: "Avg Revenue", value: insight?.avgRevenue, color: "text-success" },
+        { title: "Max Profit", value: insight?.maxProfit, color: "text-primary" },
+        { title: "Min Expense", value: insight?.minExpense, color: "text-danger" },
+        { title: "Max Revenue", value: insight?.maxRevenue, color: "text-success" },
+    ];
 
-        // monthly
-        const monthlyKeys = Object.keys(data.monthlyRevenue).sort();
-        setMonthlyLabels(monthlyKeys);
-        setMonthlyRevenue(monthlyKeys.map((k) => data.monthlyRevenue[k]));
-        setMonthlyExpense(monthlyKeys.map((k) => data.monthlyExpense[k]));
-        setMonthlyProfit(monthlyKeys.map((k) => data.monthlyProfitloss[k]));
-      })
-      .catch((err) => console.error("Error fetching:", err));
-  }, []);
-
-  return (
-    <div className="container-fluid my-5 px-5">
-      <h2 className="mb-4">Dashboard Profit/Loss</h2>
-
-      <div className="row mb-5">
-        <div className="col-md-6 mb-4">
-          <div className="card p-3">
-            <h5>Daily Revenue</h5>
-            <Line data={{
-              labels: dailyLabels,
-              datasets: [{ label: "Revenue", data: dailyRevenue, borderColor: "green", backgroundColor: "rgba(0,255,0,0.3)" }]
-            }} />
-          </div>
+    return (
+        <div className="row mb-3">
+            {cards.map((card) => (
+                <div key={card.title} className="col-md-3 mb-3">
+                    <div className="card p-3 text-center">
+                        <h6>{card.title}</h6>
+                        <h4 className={card.color}>{format(card.value)}</h4>
+                    </div>
+                </div>
+            ))}
         </div>
+    );
+};
 
-        <div className="col-md-6 mb-4">
-          <div className="card p-3">
-            <h5>Daily Expense</h5>
-            <Line data={{
-              labels: dailyLabels,
-              datasets: [{ label: "Expense", data: dailyExpense, borderColor: "red", backgroundColor: "rgba(255,0,0,0.3)" }]
-            }} />
-          </div>
-        </div>
 
-        <div className="col-md-6 mb-4">
-          <div className="card p-3">
-            <h5>Daily Profit/Loss</h5>
-            <Line data={{
-              labels: dailyLabels,
-              datasets: [{ label: "Profit/Loss", data: dailyProfit, borderColor: "blue", backgroundColor: "rgba(0,0,255,0.3)" }]
-            }} />
-          </div>
+// ======================= ChartCard Component =======================
+const ChartCard = ({ title, type = "line", labels, datasets }) => (
+    <div className="col-md-6 mb-4">
+        <div className="card p-3">
+            <h5>{title}</h5>
+            {type === "line" ? (
+                <Line data={{ labels, datasets }} />
+            ) : (
+                <Bar data={{ labels, datasets }} />
+            )}
         </div>
-
-        <div className="col-md-6 mb-4">
-          <div className="card p-3">
-            <h5>Monthly Revenue</h5>
-            <Bar data={{
-              labels: monthlyLabels,
-              datasets: [{ label: "Revenue", data: monthlyRevenue, backgroundColor: "green" }]
-            }} />
-          </div>
-        </div>
-
-        <div className="col-md-6 mb-4">
-          <div className="card p-3">
-            <h5>Monthly Expense</h5>
-            <Bar data={{
-              labels: monthlyLabels,
-              datasets: [{ label: "Expense", data: monthlyExpense, backgroundColor: "red" }]
-            }} />
-          </div>
-        </div>
-
-        <div className="col-md-6 mb-4">
-          <div className="card p-3">
-            <h5>Monthly Profit/Loss</h5>
-            <Bar data={{
-              labels: monthlyLabels,
-              datasets: [{ label: "Profit/Loss", data: monthlyProfit, backgroundColor: "blue" }]
-            }} />
-          </div>
-        </div>
-      </div>
     </div>
-  );
+);
+
+// ======================= Main Dashboard Component =======================
+function Dashboard() {
+    const [dailyLabels, setDailyLabels] = useState([]);
+    const [monthlyLabels, setMonthlyLabels] = useState([]);
+    const [dailyRevenue, setDailyRevenue] = useState([]);
+    const [dailyExpense, setDailyExpense] = useState([]);
+    const [dailyProfit, setDailyProfit] = useState([]);
+    const [monthlyRevenue, setMonthlyRevenue] = useState([]);
+    const [monthlyExpense, setMonthlyExpense] = useState([]);
+    const [monthlyProfit, setMonthlyProfit] = useState([]);
+    const [yearlyLabels, setYearlyLabels] = useState([]);
+    const [yearlyRevenue, setYearlyRevenue] = useState([]);
+    const [yearlyExpense, setYearlyExpense] = useState([]);
+    const [yearlyProfit, setYearlyProfit] = useState([]);
+    const [insight, setInsight] = useState({});
+
+    useEffect(() => {
+        fetch("http://localhost:3001/api/profitloss/stats")
+            .then((res) => res.json())
+            .then((data) => {
+                // daily
+                const dailyKeys = Object.keys(data.dailyRevenue).sort();
+                setDailyLabels(dailyKeys);
+                setDailyRevenue(dailyKeys.map((k) => data.dailyRevenue[k]));
+                setDailyExpense(dailyKeys.map((k) => data.dailyExpense[k]));
+                setDailyProfit(dailyKeys.map((k) => data.dailyProfitloss[k]));
+
+                // monthly
+                const monthlyKeys = Object.keys(data.monthlyRevenue).sort();
+                setMonthlyLabels(monthlyKeys);
+                setMonthlyRevenue(monthlyKeys.map((k) => data.monthlyRevenue[k]));
+                setMonthlyExpense(monthlyKeys.map((k) => data.monthlyExpense[k]));
+                setMonthlyProfit(monthlyKeys.map((k) => data.monthlyProfitloss[k]));
+
+                // yearly
+                const yearlyKeys = Object.keys(data.yearlyRevenue).sort();
+                setYearlyLabels(yearlyKeys);
+                setYearlyRevenue(yearlyKeys.map((k) => data.yearlyRevenue[k]));
+                setYearlyExpense(yearlyKeys.map((k) => data.yearlyExpense[k]));
+                setYearlyProfit(yearlyKeys.map((k) => data.yearlyProfitloss[k]));
+
+                // insight
+                setInsight(data);
+            })
+            .catch((err) => console.error("Error fetching:", err));
+    }, []);
+
+    return (
+        <div className="container-fluid my-5 px-5">
+            <h2 className="mb-4">Dashboard</h2>
+            <InsightCards insight={insight} />
+
+            <div className="row mb-5">
+                <ChartCard
+                    title="Daily Revenue"
+                    type="line"
+                    labels={dailyLabels}
+                    datasets={[{ label: "Revenue", data: dailyRevenue, borderColor: "green", backgroundColor: "rgba(0,255,0,0.3)" }]}
+                />
+                <ChartCard
+                    title="Daily Expense"
+                    type="line"
+                    labels={dailyLabels}
+                    datasets={[{ label: "Expense", data: dailyExpense, borderColor: "red", backgroundColor: "rgba(255,0,0,0.3)" }]}
+                />
+                <ChartCard
+                    title="Daily Profit/Loss"
+                    type="line"
+                    labels={dailyLabels}
+                    datasets={[{ label: "Profit/Loss", data: dailyProfit, borderColor: "blue", backgroundColor: "rgba(0,0,255,0.3)" }]}
+                />
+                <ChartCard
+                    title="Monthly Revenue"
+                    type="bar"
+                    labels={monthlyLabels}
+                    datasets={[{ label: "Revenue", data: monthlyRevenue, backgroundColor: "green" }]}
+                />
+                <ChartCard
+                    title="Monthly Expense"
+                    type="bar"
+                    labels={monthlyLabels}
+                    datasets={[{ label: "Expense", data: monthlyExpense, backgroundColor: "red" }]}
+                />
+                <ChartCard
+                    title="Monthly Profit/Loss"
+                    type="bar"
+                    labels={monthlyLabels}
+                    datasets={[{ label: "Profit/Loss", data: monthlyProfit, backgroundColor: "blue" }]}
+                />
+                <ChartCard
+                    title="Yearly Overview"
+                    type="bar"
+                    labels={yearlyLabels}
+                    datasets={[
+                        { label: "Revenue", data: yearlyRevenue, backgroundColor: "green" },
+                        { label: "Expense", data: yearlyExpense, backgroundColor: "red" },
+                        { label: "Profit/Loss", data: yearlyProfit, backgroundColor: "blue" },
+                    ]}
+                />
+            </div>
+        </div>
+    );
 }
 
 export default Dashboard;

@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 
@@ -73,51 +72,119 @@ func getProfitLossStats(c *fiber.Ctx) error {
 	monthlyExpense := make(map[string]float64)
 	monthlyProfitloss := make(map[string]float64)
 
+	yearlyRevenue := make(map[string]float64)
+	yearlyExpense := make(map[string]float64)
+	yearlyProfitloss := make(map[string]float64)
+
+	// Insight tambahan
+	var totalRevenue, totalExpense, totalProfit float64
+	var maxRevenue, maxExpense, maxProfit float64
+	var minRevenue, minExpense, minProfit float64
+	minRevenue, minExpense, minProfit = 999999999, 999999999, 999999999
+
+	// tanggal hari ini
+	now := time.Now()
+	currentYear, currentMonth, _ := now.Date()
+	loc := now.Location()
+
+	// range daily (bulan ini)
+	firstDay := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, loc)
+	lastDay := firstDay.AddDate(0, 1, -1)
+
 	for rows.Next() {
 		var pl ProfitLoss
 		var dateStr string
 		if err := rows.Scan(&pl.ID, &dateStr, &pl.Revenue, &pl.Expense, &pl.ProfitLoss); err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 		}
+
+		// parsing tanggal
+		t, err := time.Parse("2006-01-02", dateStr)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "invalid date format"})
+		}
+
 		pl.Date = dateStr
 		result = append(result, pl)
 
-		// daily
-		dailyRevenue[dateStr] += pl.Revenue
-		dailyExpense[dateStr] += pl.Expense
-		dailyProfitloss[dateStr] += pl.ProfitLoss
+		// daily (hanya bulan ini)
+		if !t.Before(firstDay) && !t.After(lastDay) {
+			dayKey := t.Format("2006-01-02")
+			dailyRevenue[dayKey] += pl.Revenue
+			dailyExpense[dayKey] += pl.Expense
+			dailyProfitloss[dayKey] += pl.ProfitLoss
+		}
 
-		// monthly
-		monthKey := dateStr[:7]
-		monthlyRevenue[monthKey] += pl.Revenue
-		monthlyExpense[monthKey] += pl.Expense
-		monthlyProfitloss[monthKey] += pl.ProfitLoss
-	}
+		// monthly (hanya tahun ini)
+		if t.Year() == currentYear {
+			monthKey := t.Format("January 2006") // contoh: January 2025
+			monthlyRevenue[monthKey] += pl.Revenue
+			monthlyExpense[monthKey] += pl.Expense
+			monthlyProfitloss[monthKey] += pl.ProfitLoss
+		}
 
-	// Tambahkan tanggal kosong bulan sekarang
-	now := time.Now()
-	year, month, _ := now.Date()
-	loc := now.Location()
-	firstDay := time.Date(year, month, 1, 0, 0, 0, 0, loc)
-	lastDay := firstDay.AddDate(0, 1, -1)
+		// yearly (semua tahun)
+		yearKey := t.Format("2006")
+		yearlyRevenue[yearKey] += pl.Revenue
+		yearlyExpense[yearKey] += pl.Expense
+		yearlyProfitloss[yearKey] += pl.ProfitLoss
 
-	for d := firstDay; !d.After(lastDay); d = d.AddDate(0, 0, 1) {
-		dateKey := d.Format("2006-01-02")
-		if _, ok := dailyRevenue[dateKey]; !ok {
-			dailyRevenue[dateKey] = 0
-			dailyExpense[dateKey] = 0
-			dailyProfitloss[dateKey] = 0
+		// total (untuk rata-rata harian)
+		totalRevenue += pl.Revenue
+		totalExpense += pl.Expense
+		totalProfit += pl.ProfitLoss
+
+		// max & min
+		if pl.Revenue > maxRevenue {
+			maxRevenue = pl.Revenue
+		}
+		if pl.Revenue < minRevenue {
+			minRevenue = pl.Revenue
+		}
+		if pl.Expense > maxExpense {
+			maxExpense = pl.Expense
+		}
+		if pl.Expense < minExpense {
+			minExpense = pl.Expense
+		}
+		if pl.ProfitLoss > maxProfit {
+			maxProfit = pl.ProfitLoss
+		}
+		if pl.ProfitLoss < minProfit {
+			minProfit = pl.ProfitLoss
 		}
 	}
 
-	// Tambahkan bulan kosong (Januari–Desember tahun ini)
+	// isi daily kosong (bulan ini)
+	for d := firstDay; !d.After(lastDay); d = d.AddDate(0, 0, 1) {
+		dayKey := d.Format("2006-01-02")
+		if _, ok := dailyRevenue[dayKey]; !ok {
+			dailyRevenue[dayKey] = 0
+			dailyExpense[dayKey] = 0
+			dailyProfitloss[dayKey] = 0
+		}
+	}
+
+	// isi monthly kosong (Januari–Desember tahun ini)
 	for m := 1; m <= 12; m++ {
-		monthKey := fmt.Sprintf("%04d-%02d", year, m)
+		d := time.Date(currentYear, time.Month(m), 1, 0, 0, 0, 0, loc)
+		monthKey := d.Format("January 2006")
 		if _, ok := monthlyRevenue[monthKey]; !ok {
 			monthlyRevenue[monthKey] = 0
 			monthlyExpense[monthKey] = 0
 			monthlyProfitloss[monthKey] = 0
 		}
+	}
+
+	// insight tambahan: rata-rata harian (bulan ini saja)
+	daysCount := len(dailyRevenue)
+	avgRevenue := 0.0
+	avgExpense := 0.0
+	avgProfit := 0.0
+	if daysCount > 0 {
+		avgRevenue = totalRevenue / float64(daysCount)
+		avgExpense = totalExpense / float64(daysCount)
+		avgProfit = totalProfit / float64(daysCount)
 	}
 
 	return c.JSON(fiber.Map{
@@ -128,6 +195,18 @@ func getProfitLossStats(c *fiber.Ctx) error {
 		"monthlyRevenue":    monthlyRevenue,
 		"monthlyExpense":    monthlyExpense,
 		"monthlyProfitloss": monthlyProfitloss,
+		"yearlyRevenue":     yearlyRevenue,
+		"yearlyExpense":     yearlyExpense,
+		"yearlyProfitloss":  yearlyProfitloss,
+		"avgRevenue":        avgRevenue,
+		"avgExpense":        avgExpense,
+		"avgProfit":         avgProfit,
+		"maxRevenue":        maxRevenue,
+		"minRevenue":        minRevenue,
+		"maxExpense":        maxExpense,
+		"minExpense":        minExpense,
+		"maxProfit":         maxProfit,
+		"minProfit":         minProfit,
 	})
 }
 
