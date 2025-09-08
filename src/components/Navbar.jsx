@@ -12,7 +12,10 @@ function Navbar() {
     };
 
     return (
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav
+            className="navbar navbar-expand-lg navbar-dark"
+            style={{ backgroundColor: "#222E3C" }} // Warna kustom
+        >
             <div className="container-fluid">
                 <Link className="navbar-brand" to="/">
                     Profit-Loss Dashboard
