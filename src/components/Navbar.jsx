@@ -15,7 +15,7 @@ function Navbar() {
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
             <div className="container-fluid">
                 <Link className="navbar-brand" to="/">
-                    Profit Loss Dashboard
+                    Profit-Loss Dashboard
                 </Link>
 
                 <button
