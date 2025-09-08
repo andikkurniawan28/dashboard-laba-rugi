@@ -4,10 +4,19 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 function Navbar() {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+    };
+
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
             <div className="container-fluid">
-                <Link className="navbar-brand" to="/">Profit/Loss Dashboard</Link>
+                <Link className="navbar-brand" to="/">
+                    Profit Loss Dashboard
+                </Link>
 
                 <button
                     className="navbar-toggler"
@@ -23,12 +32,54 @@ function Navbar() {
 
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav ms-auto">
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/">Dashboard</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/data">Data</Link>
-                        </li>
+                        {user && (
+                            <>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/">
+                                        Dashboard
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/data">
+                                        Data
+                                    </Link>
+                                </li>
+                                {/* User dropdown */}
+                                {user && (
+                                    <li className="nav-item dropdown ms-3">
+                                        <button
+                                            className="btn btn-dark dropdown-toggle d-flex align-items-center"
+                                            id="userDropdown"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                        >
+                                            <img
+                                                src={`https://ui-avatars.com/api/?name=${user.name}`}
+                                                alt="avatar"
+                                                className="rounded-circle me-2"
+                                                width="30"
+                                                height="30"
+                                            />
+                                            {user.name}
+                                        </button>
+                                        <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                            <li>
+                                                <button className="dropdown-item" onClick={handleLogout}>
+                                                    Logout
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                )}
+                            </>
+                        )}
+                        {!user && (
+                            <li className="nav-item">
+                                <Link className="nav-link" to="/login">
+                                    Login
+                                </Link>
+                            </li>
+                        )}
                     </ul>
                 </div>
             </div>

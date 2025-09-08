@@ -1,18 +1,50 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
-import Input from "./pages/Input";
 import ProfitLossList from "./pages/ProfitLossList";
+import Login from "./pages/Login";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
+  const [user, setUser] = useState(null);
+
+  // cek localStorage saat app pertama kali load
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+  }, []);
+
   return (
     <Router>
-      <Navbar />
+      {/* Navbar hanya tampil jika user sudah login */}
+      {user && <Navbar />}
+
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/input" element={<Input />} />
-        <Route path="/data" element={<ProfitLossList />} />
+        <Route
+          path="/login"
+          element={<Login setUser={setUser} />} // pass setUser ke login
+        />
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/data"
+          element={
+            <PrivateRoute>
+              <ProfitLossList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="*"
+          element={<h2 className="text-center mt-5">404 - Page Not Found</h2>}
+        />
       </Routes>
     </Router>
   );

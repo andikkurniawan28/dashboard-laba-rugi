@@ -81,32 +81,10 @@ const ProfitLossModal = ({ show, onClose, onSubmit, form, setForm, editing }) =>
 // ===== Table Component =====
 const ProfitLossTable = ({ data, handleEdit, handleDelete, filterText }) => {
     const columns = [
-        {
-            name: "Date",
-            selector: (row) => row.date,
-            sortable: true,
-        },
-        {
-            name: "Revenue",
-            selector: (row) => row.revenue,
-            sortable: true,
-            right: true,
-            cell: (row) => formatNumber(row.revenue),
-        },
-        {
-            name: "Expense",
-            selector: (row) => row.expense,
-            sortable: true,
-            right: true,
-            cell: (row) => formatNumber(row.expense),
-        },
-        {
-            name: "Profit/Loss",
-            selector: (row) => row.profitloss,
-            sortable: true,
-            right: true,
-            cell: (row) => formatNumber(row.profitloss),
-        },
+        { name: "Date", selector: (row) => row.date, sortable: true },
+        { name: "Revenue", selector: (row) => row.revenue, sortable: true, right: true, cell: (row) => formatNumber(row.revenue) },
+        { name: "Expense", selector: (row) => row.expense, sortable: true, right: true, cell: (row) => formatNumber(row.expense) },
+        { name: "Profit/Loss", selector: (row) => row.profitloss, sortable: true, right: true, cell: (row) => formatNumber(row.profitloss) },
         {
             name: "Action",
             cell: (row) => (
@@ -129,29 +107,26 @@ const ProfitLossTable = ({ data, handleEdit, handleDelete, filterText }) => {
             item.expense.toString().includes(filterText)
     );
 
-    return (
-        <DataTable
-            columns={columns}
-            data={filteredItems}
-            pagination
-            highlightOnHover
-            striped
-            responsive
-        />
-    );
+    return <DataTable columns={columns} data={filteredItems} pagination highlightOnHover striped responsive />;
 };
 
 // ===== Main Component =====
 function ProfitLossList() {
+    const user = JSON.parse(localStorage.getItem("user"));
     const [data, setData] = useState([]);
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState({ date: "", revenue: "", expense: "" });
     const [showModal, setShowModal] = useState(false);
     const [filterText, setFilterText] = useState("");
 
+    // ===== Fetch Data User-specific =====
     const fetchData = async () => {
         try {
-            const res = await fetch("http://localhost:3001/api/profitloss");
+            const res = await fetch("http://localhost:3001/api/profitloss/list", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userID: user.id }),
+            });
             const json = await res.json();
             setData(json || []);
         } catch (err) {
@@ -183,6 +158,7 @@ function ProfitLossList() {
         e.preventDefault();
         const payload = {
             date: form.date,
+            user_id: user.id,
             revenue: parseNumber(form.revenue),
             expense: parseNumber(form.expense),
             profitloss: parseNumber(form.revenue) - parseNumber(form.expense),
@@ -215,12 +191,9 @@ function ProfitLossList() {
         <div className="container-fluid my-5 px-5">
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h2>Data</h2>
-
                 <div className="d-flex justify-content-end mb-2">
                     <div className="input-group" style={{ maxWidth: "300px" }}>
-                        <span className="input-group-text">
-                            <i className="bi bi-search"></i> {/* pakai Bootstrap Icons */}
-                        </span>
+                        <span className="input-group-text"><i className="bi bi-search"></i></span>
                         <input
                             type="text"
                             className="form-control"

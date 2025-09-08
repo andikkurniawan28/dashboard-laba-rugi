@@ -82,9 +82,21 @@ function Dashboard() {
     const [insight, setInsight] = useState({});
 
     useEffect(() => {
-        fetch("http://localhost:3001/api/profitloss/stats")
-            .then((res) => res.json())
-            .then((data) => {
+        const fetchStats = async () => {
+            try {
+                const user = JSON.parse(localStorage.getItem("user"));
+                if (!user) return;
+
+                const res = await fetch("http://localhost:3001/api/profitloss/stats", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_id: user.id }),
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch stats");
+
+                const data = await res.json();
+
                 // daily
                 const dailyKeys = Object.keys(data.dailyRevenue).sort();
                 setDailyLabels(dailyKeys);
@@ -108,9 +120,14 @@ function Dashboard() {
 
                 // insight
                 setInsight(data);
-            })
-            .catch((err) => console.error("Error fetching:", err));
+            } catch (err) {
+                console.error("Error fetching:", err);
+            }
+        };
+
+        fetchStats();
     }, []);
+
 
     return (
         <div className="container-fluid my-5 px-5">
