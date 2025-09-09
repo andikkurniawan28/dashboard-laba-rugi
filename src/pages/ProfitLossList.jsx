@@ -135,12 +135,11 @@ function ProfitLossList() {
         if (!window.confirm("Yakin hapus data ini?")) return;
         try {
             const res = await fetch(`http://localhost:3001/api/profitloss/${id}`, { method: "DELETE" });
-            if (res.ok) {
-                fetchData();
-                Swal.fire({ icon: "success", title: "Data deleted successfully", timer: 1500, showConfirmButton: false });
-            }
+            const dataRes = await res.json();
+            if (!res.ok) throw new Error(dataRes?.error || "Failed to delete");
+            fetchData();
+            Swal.fire({ icon: "success", title: "Data deleted successfully", timer: 1500, showConfirmButton: false });
         } catch (err) {
-            console.error(err);
             Swal.fire({ icon: "error", title: "Error", text: err.message });
         }
     };
@@ -166,26 +165,26 @@ function ProfitLossList() {
         try {
             const url = editing ? `http://localhost:3001/api/profitloss/${editing}` : "http://localhost:3001/api/profitloss";
             const method = editing ? "PUT" : "POST";
+
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
+            const dataRes = await res.json();
+            if (!res.ok) throw new Error(dataRes?.error || dataRes?.detail || "Failed to save");
 
-            if (res.ok) {
-                setForm({ date: "", revenue: "", expense: "" });
-                setEditing(null);
-                setShowModal(false);
-                fetchData();
-                Swal.fire({
-                    icon: "success",
-                    title: editing ? "Data updated successfully" : "Data added successfully",
-                    timer: 1500,
-                    showConfirmButton: false,
-                });
-            }
+            setForm({ date: "", revenue: "", expense: "" });
+            setEditing(null);
+            setShowModal(false);
+            fetchData();
+            Swal.fire({
+                icon: "success",
+                title: editing ? "Data updated successfully" : "Data added successfully",
+                timer: 1500,
+                showConfirmButton: false,
+            });
         } catch (err) {
-            console.error(err);
             Swal.fire({ icon: "error", title: "Error", text: err.message });
         }
     };
@@ -194,6 +193,7 @@ function ProfitLossList() {
     const handleImport = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
         try {
             const dataFile = await file.arrayBuffer();
             const workbook = XLSX.read(dataFile);
@@ -201,24 +201,52 @@ function ProfitLossList() {
             const sheet = workbook.Sheets[sheetName];
             const json = XLSX.utils.sheet_to_json(sheet);
 
-            for (const row of json) {
+            const failedRows = [];
+
+            for (const [index, row] of json.entries()) {
                 const payload = {
-                    date: row.Date,
+                    date: row.Date, // pastikan format YYYY-MM-DD
                     user_id: user.id,
                     revenue: parseNumber(row.Revenue),
                     expense: parseNumber(row.Expense),
                     profitloss: parseNumber(row.Revenue) - parseNumber(row.Expense),
                 };
-                await fetch("http://localhost:3001/api/profitloss", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                });
+
+                try {
+                    const res = await fetch("http://localhost:3001/api/profitloss", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                    });
+                    console.log("Import payload:", payload);
+
+                    const dataRes = await res.json();
+                    if (!res.ok) {
+                        // Tangkap error dari backend
+                        failedRows.push({ row: index + 1, date: row.Date, error: dataRes?.error || dataRes?.detail });
+                        console.error(`Row ${index + 1} (${row.Date}) failed:`, dataRes);
+                    }
+                } catch (err) {
+                    failedRows.push({ row: index + 1, date: row.Date, error: err.message });
+                    console.error(`Row ${index + 1} (${row.Date}) failed:`, err);
+                }
             }
+
             fetchData();
-            Swal.fire({ icon: "success", title: "Import successful", timer: 1500, showConfirmButton: false });
+
+            if (failedRows.length > 0) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Import completed with errors",
+                    html: failedRows.map(f => `Row ${f.row} (${f.date}): ${f.error}`).join("<br/>"),
+                    width: 600,
+                    showConfirmButton: true,
+                });
+            } else {
+                Swal.fire({ icon: "success", title: "Import successful", timer: 1500, showConfirmButton: false });
+            }
         } catch (err) {
-            console.error(err);
+            console.error("Import process failed:", err);
             Swal.fire({ icon: "error", title: "Import failed", text: err.message });
         }
     };

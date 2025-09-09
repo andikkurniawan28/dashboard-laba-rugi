@@ -68,32 +68,51 @@ func getProfitLossByID(c *fiber.Ctx) error {
 // CREATE
 func createProfitLoss(c *fiber.Ctx) error {
 	pl := new(ProfitLoss)
+
+	// Parse body
 	if err := c.BodyParser(pl); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "invalid input"})
+		return c.Status(400).JSON(fiber.Map{
+			"error":  "invalid input",
+			"detail": err.Error(), // info parsing gagal
+		})
 	}
 
-	// validasi user_id
+	// Validasi user_id
 	if pl.UserID == 0 {
-		return c.Status(400).JSON(fiber.Map{"error": "user_id is required"})
+		return c.Status(400).JSON(fiber.Map{
+			"error":  "user_id is required",
+			"detail": "Pastikan field 'user_id' ada dan bukan 0",
+		})
 	}
 
+	// Validasi tanggal unik
 	var exists int
-	err := db.QueryRow("SELECT COUNT(*) FROM profit_losses WHERE date = ?", pl.Date).Scan(&exists)
+	err := db.QueryRow("SELECT COUNT(*) FROM profit_losses WHERE date = ? AND user_id = ?", pl.Date, pl.UserID).Scan(&exists)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 	if exists > 0 {
-		return c.Status(400).JSON(fiber.Map{"error": "date already exists"})
+		return c.Status(400).JSON(fiber.Map{
+			"error":  "date already exists",
+			"detail": "Sudah ada record dengan tanggal yang sama untuk user ini",
+		})
 	}
 
+	// Hitung profit/loss
 	pl.ProfitLoss = pl.Revenue - pl.Expense
-	res, err := db.Exec("INSERT INTO profit_losses (user_id, date, revenue, expense, profitloss) VALUES (?, ?, ?, ?, ?)",
-		pl.UserID, pl.Date, pl.Revenue, pl.Expense, pl.ProfitLoss)
+
+	// Insert ke database
+	res, err := db.Exec(
+		"INSERT INTO profit_losses (user_id, date, revenue, expense, profitloss) VALUES (?, ?, ?, ?, ?)",
+		pl.UserID, pl.Date, pl.Revenue, pl.Expense, pl.ProfitLoss,
+	)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
+
 	id, _ := res.LastInsertId()
 	pl.ID = int(id)
+
 	return c.JSON(pl)
 }
 
