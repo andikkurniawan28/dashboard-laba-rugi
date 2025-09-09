@@ -13,6 +13,7 @@ type User struct {
 	Organization     string `json:"organization"`
 	Whatsapp         string `json:"whatsapp"`
 	AccessToProduct1 bool   `json:"access_to_product_1"`
+	AppKey           string `json:"app_key"`
 }
 
 type ProfitLoss struct {
@@ -22,6 +23,7 @@ type ProfitLoss struct {
 	Revenue    float64 `json:"revenue"`
 	Expense    float64 `json:"expense"`
 	ProfitLoss float64 `json:"profitloss"`
+	AppKey     string  `json:"app_key"`
 }
 
 type StatsRequest struct {

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"math/big"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -23,16 +25,16 @@ func loginProcess(c *fiber.Ctx) error {
 		accessToProduct1 bool
 	)
 
-	// Ambil user berdasarkan email
+	// Ambil user berdasarkan email (tambahkan app_key)
 	err := db.QueryRow(`
-		SELECT id, role_id, name, email, password, is_active, access_to_product_1, organization, whatsapp
+		SELECT id, role_id, name, email, password, is_active, access_to_product_1, organization, whatsapp, app_key
 		FROM users 
 		WHERE email = ?
 		LIMIT 1
 	`, req.Email).Scan(
 		&user.ID, &user.RoleID, &user.Name, &user.Email,
 		&hashedPassword, &isActive, &accessToProduct1,
-		&user.Organization, &user.Whatsapp,
+		&user.Organization, &user.Whatsapp, &user.AppKey,
 	)
 
 	if err != nil {
@@ -97,13 +99,16 @@ func registerProcess(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to hash password"})
 	}
 
+	// generate app_key
+	appKey := generateRandomString(8)
+
 	// insert user baru
 	result, err := db.Exec(`
-		INSERT INTO users (role_id, name, email, password, is_active, access_to_product_1, organization, whatsapp)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO users (role_id, name, email, password, is_active, access_to_product_1, organization, whatsapp, app_key)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`,
 		3, req.Name, req.Email, string(hashedPassword),
-		1, 1, req.Organization, req.Whatsapp,
+		1, 1, req.Organization, req.Whatsapp, appKey,
 	)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
@@ -120,6 +125,7 @@ func registerProcess(c *fiber.Ctx) error {
 			"email":               req.Email,
 			"organization":        req.Organization,
 			"whatsapp":            req.Whatsapp,
+			"app_key":             appKey,
 			"is_active":           1,
 			"access_to_product_1": 1,
 		},
@@ -169,4 +175,17 @@ func changePasswordProcess(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"message": "password updated successfully"})
+}
+
+// =======================================
+// Helper: Generate Random String
+// =======================================
+func generateRandomString(n int) string {
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	bytes := make([]byte, n)
+	for i := range bytes {
+		num, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		bytes[i] = letters[num.Int64()]
+	}
+	return string(bytes)
 }

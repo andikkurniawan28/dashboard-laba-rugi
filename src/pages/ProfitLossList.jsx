@@ -157,6 +157,7 @@ function ProfitLossList() {
         const payload = {
             date: form.date,
             user_id: user.id,
+            app_key: user.app_key,
             revenue: parseNumber(form.revenue),
             expense: parseNumber(form.expense),
             profitloss: parseNumber(form.revenue) - parseNumber(form.expense),
@@ -207,6 +208,7 @@ function ProfitLossList() {
                 const payload = {
                     date: row.Date, // pastikan format YYYY-MM-DD
                     user_id: user.id,
+                    app_key: user.app_key,
                     revenue: parseNumber(row.Revenue),
                     expense: parseNumber(row.Expense),
                     profitloss: parseNumber(row.Revenue) - parseNumber(row.Expense),
@@ -329,6 +331,11 @@ function ProfitLossList() {
                     <button className="btn btn-info" onClick={downloadTemplate}>
                         <i className="bi bi-file-earmark-text me-1"></i> Template
                     </button>
+
+                    <button className="btn btn-success" onClick={() => (window.location.href = "/api-docs")}>
+                        <i className="bi bi-code-slash me-1"></i> API
+                    </button>
+
                 </div>
             </div>
 

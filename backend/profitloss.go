@@ -65,7 +65,7 @@ func getProfitLossByID(c *fiber.Ctx) error {
 	return c.JSON(pl)
 }
 
-// CREATE
+// CREATE with app_key validation
 func createProfitLoss(c *fiber.Ctx) error {
 	pl := new(ProfitLoss)
 
@@ -73,21 +73,34 @@ func createProfitLoss(c *fiber.Ctx) error {
 	if err := c.BodyParser(pl); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"error":  "invalid input",
-			"detail": err.Error(), // info parsing gagal
+			"detail": err.Error(),
 		})
 	}
 
-	// Validasi user_id
-	if pl.UserID == 0 {
+	// Validasi user_id & app_key
+	if pl.UserID == 0 || pl.AppKey == "" {
 		return c.Status(400).JSON(fiber.Map{
-			"error":  "user_id is required",
-			"detail": "Pastikan field 'user_id' ada dan bukan 0",
+			"error":  "user_id and app_key are required",
+			"detail": "Pastikan field 'user_id' dan 'app_key' ada dan tidak kosong",
 		})
 	}
 
-	// Validasi tanggal unik
+	// Cek apakah user_id & app_key valid
+	var valid int
+	err := db.QueryRow("SELECT COUNT(*) FROM users WHERE id = ? AND app_key = ?", pl.UserID, pl.AppKey).Scan(&valid)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	if valid == 0 {
+		return c.Status(403).JSON(fiber.Map{
+			"error":  "invalid credentials",
+			"detail": "user_id dan app_key tidak valid",
+		})
+	}
+
+	// Validasi tanggal unik per user
 	var exists int
-	err := db.QueryRow("SELECT COUNT(*) FROM profit_losses WHERE date = ? AND user_id = ?", pl.Date, pl.UserID).Scan(&exists)
+	err = db.QueryRow("SELECT COUNT(*) FROM profit_losses WHERE date = ? AND user_id = ?", pl.Date, pl.UserID).Scan(&exists)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
