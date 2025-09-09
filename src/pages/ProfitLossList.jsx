@@ -320,20 +320,20 @@ function ProfitLossList() {
                     </button>
 
                     <label className="btn btn-primary mb-0">
-                        <i className="bi bi-upload me-1"></i> Import
+                        <i className="bi bi-upload me-1"></i> Import from Excel
                         <input type="file" accept=".xlsx, .xls" onChange={handleImport} hidden />
                     </label>
 
                     <button className="btn btn-secondary" onClick={handleExport}>
-                        <i className="bi bi-download me-1"></i> Export
+                        <i className="bi bi-download me-1"></i> Export to Excel
                     </button>
 
                     <button className="btn btn-info" onClick={downloadTemplate}>
-                        <i className="bi bi-file-earmark-text me-1"></i> Template
+                        <i className="bi bi-file-earmark-text me-1"></i> Download Template
                     </button>
 
                     <button className="btn btn-success" onClick={() => (window.location.href = "/api-docs")}>
-                        <i className="bi bi-code-slash me-1"></i> API
+                        <i className="bi bi-code-slash me-1"></i> API Documentation
                     </button>
 
                 </div>
