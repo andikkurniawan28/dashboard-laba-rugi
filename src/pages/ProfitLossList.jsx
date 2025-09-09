@@ -221,11 +221,12 @@ function ProfitLossList() {
                     console.log("Import payload:", payload);
 
                     const dataRes = await res.json();
-                    if (!res.ok) {
-                        // Tangkap error dari backend
-                        failedRows.push({ row: index + 1, date: row.Date, error: dataRes?.error || dataRes?.detail });
-                        console.error(`Row ${index + 1} (${row.Date}) failed:`, dataRes);
-                    }
+                    // if (!res.ok) {
+                    //     // Tangkap error dari backend
+                    //     failedRows.push({ row: index + 1, date: row.Date, error: dataRes?.error || dataRes?.detail });
+                    //     console.error(`Row ${index + 1} (${row.Date}) failed:`, dataRes);
+                    // }
+                    if (!res.ok) throw new Error(dataRes?.error || dataRes?.detail || "Import failed for row " + row.Date);
                 } catch (err) {
                     failedRows.push({ row: index + 1, date: row.Date, error: err.message });
                     console.error(`Row ${index + 1} (${row.Date}) failed:`, err);

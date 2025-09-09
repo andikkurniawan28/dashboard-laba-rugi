@@ -75,10 +75,12 @@ function Dashboard() {
     const [monthlyRevenue, setMonthlyRevenue] = useState([]);
     const [monthlyExpense, setMonthlyExpense] = useState([]);
     const [monthlyProfit, setMonthlyProfit] = useState([]);
+    const [monthlyMargin, setMonthlyMargin] = useState([]);
     const [yearlyLabels, setYearlyLabels] = useState([]);
     const [yearlyRevenue, setYearlyRevenue] = useState([]);
     const [yearlyExpense, setYearlyExpense] = useState([]);
     const [yearlyProfit, setYearlyProfit] = useState([]);
+    const [yearlyMargin, setYearlyMargin] = useState([]);
     const [insight, setInsight] = useState({});
 
     useEffect(() => {
@@ -110,6 +112,7 @@ function Dashboard() {
                 setMonthlyRevenue(monthlyData.map((m) => m.revenue));
                 setMonthlyExpense(monthlyData.map((m) => m.expense));
                 setMonthlyProfit(monthlyData.map((m) => m.profitloss));
+                setMonthlyMargin(monthlyData.map((m) => m.profitMargin));
 
                 // yearly
                 const yearlyKeys = Object.keys(data.yearlyRevenue).sort();
@@ -117,6 +120,7 @@ function Dashboard() {
                 setYearlyRevenue(yearlyKeys.map((k) => data.yearlyRevenue[k]));
                 setYearlyExpense(yearlyKeys.map((k) => data.yearlyExpense[k]));
                 setYearlyProfit(yearlyKeys.map((k) => data.yearlyProfitloss[k]));
+                setYearlyMargin(yearlyKeys.map((k) => data.yearlyProfitMargin[k]));
 
                 // insight
                 setInsight(data);
@@ -153,6 +157,19 @@ function Dashboard() {
                     labels={dailyLabels}
                     datasets={[{ label: "Profit/Loss", data: dailyProfit, borderColor: "blue", backgroundColor: "rgba(0,0,255,0.3)" }]}
                 />
+
+                {/* ✅ Tambahan Chart Gabungan */}
+                <ChartCard
+                    title="Daily Overview (Revenue vs Expense vs Profit)"
+                    type="line"
+                    labels={dailyLabels}
+                    datasets={[
+                        { label: "Revenue", data: dailyRevenue, borderColor: "green", backgroundColor: "rgba(0,255,0,0.2)", fill: true },
+                        { label: "Expense", data: dailyExpense, borderColor: "red", backgroundColor: "rgba(255,0,0,0.2)", fill: true },
+                        { label: "Profit/Loss", data: dailyProfit, borderColor: "blue", backgroundColor: "rgba(0,0,255,0.2)", fill: true },
+                    ]}
+                />
+
                 <ChartCard
                     title="Monthly Revenue"
                     type="bar"
@@ -172,6 +189,12 @@ function Dashboard() {
                     datasets={[{ label: "Profit/Loss", data: monthlyProfit, backgroundColor: "blue" }]}
                 />
                 <ChartCard
+                    title="Monthly Profit Margin (%)"
+                    type="line"
+                    labels={monthlyLabels}
+                    datasets={[{ label: "Profit Margin", data: monthlyMargin, borderColor: "orange", backgroundColor: "rgba(255,165,0,0.3)" }]}
+                />
+                <ChartCard
                     title="Yearly Overview"
                     type="bar"
                     labels={yearlyLabels}
@@ -181,7 +204,14 @@ function Dashboard() {
                         { label: "Profit/Loss", data: yearlyProfit, backgroundColor: "blue" },
                     ]}
                 />
+                <ChartCard
+                    title="Yearly Profit Margin (%)"
+                    type="line"
+                    labels={yearlyLabels}
+                    datasets={[{ label: "Profit Margin", data: yearlyMargin, borderColor: "purple", backgroundColor: "rgba(128,0,128,0.3)" }]}
+                />
             </div>
+
         </div>
     );
 }

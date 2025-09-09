@@ -215,7 +215,7 @@ func getProfitLossStats(c *fiber.Ctx) error {
 
 		// monthly (hanya tahun ini)
 		if t.Year() == currentYear {
-			monthKey := t.Format("January 2006") // contoh: January 2025
+			monthKey := t.Format("January 2006")
 			monthlyRevenue[monthKey] += pl.Revenue
 			monthlyExpense[monthKey] += pl.Expense
 			monthlyProfitloss[monthKey] += pl.ProfitLoss
@@ -274,23 +274,39 @@ func getProfitLossStats(c *fiber.Ctx) error {
 		}
 	}
 
-	// konversi monthly ke slice agar urut
+	// konversi monthly ke slice agar urut + margin
 	type MonthlyStat struct {
-		Month      string  `json:"month"`
-		Revenue    float64 `json:"revenue"`
-		Expense    float64 `json:"expense"`
-		ProfitLoss float64 `json:"profitloss"`
+		Month        string  `json:"month"`
+		Revenue      float64 `json:"revenue"`
+		Expense      float64 `json:"expense"`
+		ProfitLoss   float64 `json:"profitloss"`
+		ProfitMargin float64 `json:"profitMargin"`
 	}
 	var monthlyStats []MonthlyStat
 	for m := 1; m <= 12; m++ {
 		d := time.Date(currentYear, time.Month(m), 1, 0, 0, 0, 0, loc)
 		monthKey := d.Format("January 2006")
+		margin := 0.0
+		if monthlyRevenue[monthKey] > 0 {
+			margin = (monthlyProfitloss[monthKey] / monthlyRevenue[monthKey]) * 100
+		}
 		monthlyStats = append(monthlyStats, MonthlyStat{
-			Month:      monthKey,
-			Revenue:    monthlyRevenue[monthKey],
-			Expense:    monthlyExpense[monthKey],
-			ProfitLoss: monthlyProfitloss[monthKey],
+			Month:        monthKey,
+			Revenue:      monthlyRevenue[monthKey],
+			Expense:      monthlyExpense[monthKey],
+			ProfitLoss:   monthlyProfitloss[monthKey],
+			ProfitMargin: margin,
 		})
+	}
+
+	// yearly profit margin
+	yearlyProfitMargin := make(map[string]float64)
+	for year, rev := range yearlyRevenue {
+		if rev > 0 {
+			yearlyProfitMargin[year] = (yearlyProfitloss[year] / rev) * 100
+		} else {
+			yearlyProfitMargin[year] = 0
+		}
 	}
 
 	// insight tambahan: rata-rata harian (bulan ini saja)
@@ -305,22 +321,23 @@ func getProfitLossStats(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"data":             result,
-		"dailyRevenue":     dailyRevenue,
-		"dailyExpense":     dailyExpense,
-		"dailyProfitloss":  dailyProfitloss,
-		"monthlyStats":     monthlyStats, // sudah urut Jan–Dec
-		"yearlyRevenue":    yearlyRevenue,
-		"yearlyExpense":    yearlyExpense,
-		"yearlyProfitloss": yearlyProfitloss,
-		"avgRevenue":       avgRevenue,
-		"avgExpense":       avgExpense,
-		"avgProfit":        avgProfit,
-		"maxRevenue":       maxRevenue,
-		"minRevenue":       minRevenue,
-		"maxExpense":       maxExpense,
-		"minExpense":       minExpense,
-		"maxProfit":        maxProfit,
-		"minProfit":        minProfit,
+		"data":               result,
+		"dailyRevenue":       dailyRevenue,
+		"dailyExpense":       dailyExpense,
+		"dailyProfitloss":    dailyProfitloss,
+		"monthlyStats":       monthlyStats,
+		"yearlyRevenue":      yearlyRevenue,
+		"yearlyExpense":      yearlyExpense,
+		"yearlyProfitloss":   yearlyProfitloss,
+		"yearlyProfitMargin": yearlyProfitMargin,
+		"avgRevenue":         avgRevenue,
+		"avgExpense":         avgExpense,
+		"avgProfit":          avgProfit,
+		"maxRevenue":         maxRevenue,
+		"minRevenue":         minRevenue,
+		"maxExpense":         maxExpense,
+		"minExpense":         minExpense,
+		"maxProfit":          maxProfit,
+		"minProfit":          minProfit,
 	})
 }
