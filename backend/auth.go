@@ -63,3 +63,110 @@ func loginProcess(c *fiber.Ctx) error {
 		"user":    user,
 	})
 }
+
+// =======================================
+// REGISTER PROCESS
+// =======================================
+func registerProcess(c *fiber.Ctx) error {
+	type RegisterRequest struct {
+		Organization string `json:"organization"`
+		Name         string `json:"name"`
+		Email        string `json:"email"`
+		Whatsapp     string `json:"whatsapp"`
+		Password     string `json:"password"`
+	}
+
+	req := new(RegisterRequest)
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid input"})
+	}
+
+	// cek email sudah terpakai atau belum
+	var existing int
+	err := db.QueryRow("SELECT COUNT(*) FROM users WHERE email = ?", req.Email).Scan(&existing)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	if existing > 0 {
+		return c.Status(400).JSON(fiber.Map{"error": "email already registered"})
+	}
+
+	// hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to hash password"})
+	}
+
+	// insert user baru
+	result, err := db.Exec(`
+		INSERT INTO users (role_id, name, email, password, is_active, access_to_product_1, organization, whatsapp)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	`,
+		3, req.Name, req.Email, string(hashedPassword),
+		1, 1, req.Organization, req.Whatsapp,
+	)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	lastID, _ := result.LastInsertId()
+
+	return c.JSON(fiber.Map{
+		"message": "register success",
+		"user": fiber.Map{
+			"id":                  lastID,
+			"role_id":             3,
+			"name":                req.Name,
+			"email":               req.Email,
+			"organization":        req.Organization,
+			"whatsapp":            req.Whatsapp,
+			"is_active":           1,
+			"access_to_product_1": 1,
+		},
+	})
+}
+
+// =======================================
+// CHANGE PASSWORD PROCESS
+// =======================================
+func changePasswordProcess(c *fiber.Ctx) error {
+	type ChangePasswordRequest struct {
+		UserID          int    `json:"user_id"`
+		CurrentPassword string `json:"currentPassword"`
+		NewPassword     string `json:"newPassword"`
+	}
+
+	req := new(ChangePasswordRequest)
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid input"})
+	}
+
+	// Ambil password lama dari DB
+	var hashedPassword string
+	err := db.QueryRow("SELECT password FROM users WHERE id = ?", req.UserID).Scan(&hashedPassword)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(404).JSON(fiber.Map{"error": "user not found"})
+		}
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	// Cek current password
+	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(req.CurrentPassword)); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "current password is incorrect"})
+	}
+
+	// Hash password baru
+	newHashed, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to hash new password"})
+	}
+
+	// Update ke DB
+	_, err = db.Exec("UPDATE users SET password = ? WHERE id = ?", string(newHashed), req.UserID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"message": "password updated successfully"})
+}

@@ -25,6 +25,8 @@ func main() {
 
 	// ===== Auth =====
 	app.Post("/api/login", loginProcess)
+	app.Post("/api/register", registerProcess)
+	app.Post("/api/change-password", changePasswordProcess)
 
 	// ===== ProfitLoss CRUD =====
 	app.Post("/api/profitloss/stats", getProfitLossStats)

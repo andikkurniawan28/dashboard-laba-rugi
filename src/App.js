@@ -5,6 +5,8 @@ import Dashboard from "./pages/Dashboard";
 import ProfitLossList from "./pages/ProfitLossList";
 import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute";
+import Register from "./pages/Register";
+import ChangePassword from "./pages/ChangePassword";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -25,11 +27,20 @@ function App() {
           path="/login"
           element={<Login setUser={setUser} />} // pass setUser ke login
         />
+        <Route path="/register" element={<Register />} />
         <Route
           path="/"
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/change-password"
+          element={
+            <PrivateRoute>
+              <ChangePassword />
             </PrivateRoute>
           }
         />

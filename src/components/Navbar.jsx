@@ -18,7 +18,7 @@ function Navbar() {
         >
             <div className="container-fluid">
                 <Link className="navbar-brand" to="/">
-                    Profit-Loss Dashboard
+                    Profit-Loss Dashboard  ({user.organization})
                 </Link>
 
                 <button
@@ -66,6 +66,11 @@ function Navbar() {
                                             {user.name}
                                         </button>
                                         <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                            <li>
+                                                <Link className="dropdown-item" to="/change-password">
+                                                    Change Password
+                                                </Link>
+                                            </li>
                                             <li>
                                                 <button className="dropdown-item" onClick={handleLogout}>
                                                     Logout

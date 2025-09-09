@@ -25,15 +25,9 @@ const Login = ({ setUser }) => {
                 return;
             }
 
-            // simpan user info di localStorage
             localStorage.setItem("user", JSON.stringify(data.user));
-
-            // update state App supaya navbar muncul
             setUser(data.user);
-
-            // redirect ke dashboard
             navigate("/");
-
         } catch (err) {
             setError("Server error");
             console.error(err);
@@ -41,36 +35,78 @@ const Login = ({ setUser }) => {
     };
 
     return (
-        <div className="d-flex justify-content-center align-items-center vh-100">
-            <div className="card shadow" style={{ width: "400px" }}>
-                <div className="card-body">
-                    <h3 className="card-title text-center mb-4">Login</h3>
+        <div
+            className="d-flex justify-content-center align-items-center vh-100"
+            style={{
+                backgroundColor: "#222E3C",
+                fontFamily: "Segoe UI, sans-serif",
+            }}
+        >
+            <div
+                className="card shadow-lg border-0"
+                style={{
+                    width: "400px",
+                    borderRadius: "15px",
+                    backgroundColor: "rgba(255, 255, 255, 0.95)",
+                }}
+            >
+                <div className="card-body p-4">
+                    <h3 className="card-title text-center mb-4" style={{ color: "#222E3C" }}>
+                        Profit-Loss Dashboard
+                    </h3>
                     <form onSubmit={handleLogin}>
                         <div className="mb-3">
-                            <label className="form-label">Email</label>
+                            <label className="form-label fw-semibold">Email</label>
                             <input
                                 type="email"
                                 className="form-control"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
+                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Password</label>
+                            <label className="form-label fw-semibold">Password</label>
                             <input
                                 type="password"
                                 className="form-control"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
+                                style={{ borderRadius: "10px" }}
                             />
                         </div>
-                        {error && <p className="text-danger">{error}</p>}
-                        <button type="submit" className="btn btn-primary w-100 mt-3">
+                        {error && (
+                            <p className="text-danger small text-center">{error}</p>
+                        )}
+                        <button
+                            type="submit"
+                            className="btn w-100 mt-3"
+                            style={{
+                                backgroundColor: "#222E3C",
+                                color: "white",
+                                borderRadius: "10px",
+                                fontWeight: "600",
+                                letterSpacing: "0.5px",
+                            }}
+                        >
                             Login
                         </button>
                     </form>
+                    <p className="text-center mt-3 mb-0">
+                        Don't have an account?{" "}
+                        <span
+                            style={{
+                                color: "#222E3C",
+                                fontWeight: "600",
+                                cursor: "pointer",
+                            }}
+                            onClick={() => navigate("/register")}
+                        >
+                            Register
+                        </span>
+                    </p>
                 </div>
             </div>
         </div>
