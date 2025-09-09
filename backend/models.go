@@ -33,3 +33,14 @@ type StatsRequest struct {
 type UserRequest struct {
 	UserID int64 `json:"user_id"`
 }
+
+type Ticket struct {
+	ID          int    `json:"id"`
+	UserID      int    `json:"user_id"`
+	ProductID   int    `json:"product_id"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
+	AppKey      string `json:"app_key"` // dari front-end
+}

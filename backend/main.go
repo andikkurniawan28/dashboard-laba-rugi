@@ -36,5 +36,12 @@ func main() {
 	app.Put("/api/profitloss/:id", updateProfitLoss)
 	app.Delete("/api/profitloss/:id", deleteProfitLoss)
 
+	// ===== Ticket CRUD =====
+	app.Post("/api/ticket/list", getAllTicket)
+	app.Get("/api/ticket/:id", getTicketByID)
+	app.Post("/api/ticket", createTicket)
+	app.Put("/api/ticket/:id", updateTicket)
+	app.Delete("/api/ticket/:id", deleteTicket)
+
 	log.Fatal(app.Listen(":3001"))
 }

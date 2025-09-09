@@ -72,6 +72,11 @@ function Navbar() {
                                                 </Link>
                                             </li>
                                             <li>
+                                                <Link className="dropdown-item" to="/ticket">
+                                                    Ticket
+                                                </Link>
+                                            </li>
+                                            <li>
                                                 <button className="dropdown-item" onClick={handleLogout}>
                                                     Logout
                                                 </button>

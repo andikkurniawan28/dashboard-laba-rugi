@@ -8,6 +8,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
 import ChangePassword from "./pages/ChangePassword";
 import ApiDocs from "./pages/ApiDocs";
+import TicketList from "./pages/TicketList";
+
 
 function App() {
   const [user, setUser] = useState(null);
@@ -50,6 +52,14 @@ function App() {
           element={
             <PrivateRoute>
               <ProfitLossList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/ticket"
+          element={
+            <PrivateRoute>
+              <TicketList />
             </PrivateRoute>
           }
         />
