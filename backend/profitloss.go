@@ -155,7 +155,7 @@ func getProfitLossStats(c *fiber.Ctx) error {
 	yearlyExpense := make(map[string]float64)
 	yearlyProfitloss := make(map[string]float64)
 
-	// Insight tambahan
+	// insight tambahan
 	var totalRevenue, totalExpense, totalProfit float64
 	var maxRevenue, maxExpense, maxProfit float64
 	var minRevenue, minExpense, minProfit float64
@@ -208,7 +208,7 @@ func getProfitLossStats(c *fiber.Ctx) error {
 		yearlyExpense[yearKey] += pl.Expense
 		yearlyProfitloss[yearKey] += pl.ProfitLoss
 
-		// total (untuk rata-rata harian)
+		// total
 		totalRevenue += pl.Revenue
 		totalExpense += pl.Expense
 		totalProfit += pl.ProfitLoss
@@ -255,6 +255,25 @@ func getProfitLossStats(c *fiber.Ctx) error {
 		}
 	}
 
+	// konversi monthly ke slice agar urut
+	type MonthlyStat struct {
+		Month      string  `json:"month"`
+		Revenue    float64 `json:"revenue"`
+		Expense    float64 `json:"expense"`
+		ProfitLoss float64 `json:"profitloss"`
+	}
+	var monthlyStats []MonthlyStat
+	for m := 1; m <= 12; m++ {
+		d := time.Date(currentYear, time.Month(m), 1, 0, 0, 0, 0, loc)
+		monthKey := d.Format("January 2006")
+		monthlyStats = append(monthlyStats, MonthlyStat{
+			Month:      monthKey,
+			Revenue:    monthlyRevenue[monthKey],
+			Expense:    monthlyExpense[monthKey],
+			ProfitLoss: monthlyProfitloss[monthKey],
+		})
+	}
+
 	// insight tambahan: rata-rata harian (bulan ini saja)
 	daysCount := len(dailyRevenue)
 	avgRevenue := 0.0
@@ -267,24 +286,22 @@ func getProfitLossStats(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"data":              result,
-		"dailyRevenue":      dailyRevenue,
-		"dailyExpense":      dailyExpense,
-		"dailyProfitloss":   dailyProfitloss,
-		"monthlyRevenue":    monthlyRevenue,
-		"monthlyExpense":    monthlyExpense,
-		"monthlyProfitloss": monthlyProfitloss,
-		"yearlyRevenue":     yearlyRevenue,
-		"yearlyExpense":     yearlyExpense,
-		"yearlyProfitloss":  yearlyProfitloss,
-		"avgRevenue":        avgRevenue,
-		"avgExpense":        avgExpense,
-		"avgProfit":         avgProfit,
-		"maxRevenue":        maxRevenue,
-		"minRevenue":        minRevenue,
-		"maxExpense":        maxExpense,
-		"minExpense":        minExpense,
-		"maxProfit":         maxProfit,
-		"minProfit":         minProfit,
+		"data":             result,
+		"dailyRevenue":     dailyRevenue,
+		"dailyExpense":     dailyExpense,
+		"dailyProfitloss":  dailyProfitloss,
+		"monthlyStats":     monthlyStats, // sudah urut Jan–Dec
+		"yearlyRevenue":    yearlyRevenue,
+		"yearlyExpense":    yearlyExpense,
+		"yearlyProfitloss": yearlyProfitloss,
+		"avgRevenue":       avgRevenue,
+		"avgExpense":       avgExpense,
+		"avgProfit":        avgProfit,
+		"maxRevenue":       maxRevenue,
+		"minRevenue":       minRevenue,
+		"maxExpense":       maxExpense,
+		"minExpense":       minExpense,
+		"maxProfit":        maxProfit,
+		"minProfit":        minProfit,
 	})
 }

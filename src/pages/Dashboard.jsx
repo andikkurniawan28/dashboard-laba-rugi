@@ -105,11 +105,11 @@ function Dashboard() {
                 setDailyProfit(dailyKeys.map((k) => data.dailyProfitloss[k]));
 
                 // monthly
-                const monthlyKeys = Object.keys(data.monthlyRevenue).sort();
-                setMonthlyLabels(monthlyKeys);
-                setMonthlyRevenue(monthlyKeys.map((k) => data.monthlyRevenue[k]));
-                setMonthlyExpense(monthlyKeys.map((k) => data.monthlyExpense[k]));
-                setMonthlyProfit(monthlyKeys.map((k) => data.monthlyProfitloss[k]));
+                const monthlyData = data.monthlyStats || [];
+                setMonthlyLabels(monthlyData.map((m) => m.month));
+                setMonthlyRevenue(monthlyData.map((m) => m.revenue));
+                setMonthlyExpense(monthlyData.map((m) => m.expense));
+                setMonthlyProfit(monthlyData.map((m) => m.profitloss));
 
                 // yearly
                 const yearlyKeys = Object.keys(data.yearlyRevenue).sort();

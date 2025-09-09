@@ -6,12 +6,13 @@ type LoginRequest struct {
 }
 
 type User struct {
-	ID           int    `json:"id"`
-	RoleID       int    `json:"role_id"`
-	Name         string `json:"name"`
-	Email        string `json:"email"`
-	Organization string `json:"organization"`
-	Whatsapp     string `json:"whatsapp"`
+	ID               int    `json:"id"`
+	RoleID           int    `json:"role_id"`
+	Name             string `json:"name"`
+	Email            string `json:"email"`
+	Organization     string `json:"organization"`
+	Whatsapp         string `json:"whatsapp"`
+	AccessToProduct1 bool   `json:"access_to_product_1"`
 }
 
 type ProfitLoss struct {

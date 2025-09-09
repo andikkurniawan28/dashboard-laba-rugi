@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
+import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
 
 // ===== Helper Functions =====
 const formatNumber = (num) => (num ? Number(num).toLocaleString("en-US") : "");
@@ -8,7 +10,6 @@ const parseNumber = (val) => (val ? Number(val.toString().replace(/,/g, "")) : 0
 // ===== Modal Component =====
 const ProfitLossModal = ({ show, onClose, onSubmit, form, setForm, editing }) => {
     if (!show) return null;
-
     return (
         <div className="modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog">
@@ -35,9 +36,7 @@ const ProfitLossModal = ({ show, onClose, onSubmit, form, setForm, editing }) =>
                                     type="text"
                                     className="form-control"
                                     value={formatNumber(form.revenue)}
-                                    onChange={(e) =>
-                                        setForm({ ...form, revenue: e.target.value.replace(/,/g, "") })
-                                    }
+                                    onChange={(e) => setForm({ ...form, revenue: e.target.value.replace(/,/g, "") })}
                                     required
                                 />
                             </div>
@@ -47,9 +46,7 @@ const ProfitLossModal = ({ show, onClose, onSubmit, form, setForm, editing }) =>
                                     type="text"
                                     className="form-control"
                                     value={formatNumber(form.expense)}
-                                    onChange={(e) =>
-                                        setForm({ ...form, expense: e.target.value.replace(/,/g, "") })
-                                    }
+                                    onChange={(e) => setForm({ ...form, expense: e.target.value.replace(/,/g, "") })}
                                     required
                                 />
                             </div>
@@ -89,12 +86,8 @@ const ProfitLossTable = ({ data, handleEdit, handleDelete, filterText }) => {
             name: "Action",
             cell: (row) => (
                 <>
-                    <button className="btn btn-primary btn-sm me-2" onClick={() => handleEdit(row)}>
-                        Edit
-                    </button>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(row.id)}>
-                        Delete
-                    </button>
+                    <button className="btn btn-primary btn-sm me-2" onClick={() => handleEdit(row)}>Edit</button>
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(row.id)}>Delete</button>
                 </>
             ),
         },
@@ -119,7 +112,6 @@ function ProfitLossList() {
     const [showModal, setShowModal] = useState(false);
     const [filterText, setFilterText] = useState("");
 
-    // ===== Fetch Data User-specific =====
     const fetchData = async () => {
         try {
             const res = await fetch("http://localhost:3001/api/profitloss/list", {
@@ -138,22 +130,29 @@ function ProfitLossList() {
         fetchData();
     }, []);
 
+    // ===== Delete =====
     const handleDelete = async (id) => {
         if (!window.confirm("Yakin hapus data ini?")) return;
         try {
             const res = await fetch(`http://localhost:3001/api/profitloss/${id}`, { method: "DELETE" });
-            if (res.ok) fetchData();
+            if (res.ok) {
+                fetchData();
+                Swal.fire({ icon: "success", title: "Data deleted successfully", timer: 1500, showConfirmButton: false });
+            }
         } catch (err) {
             console.error(err);
+            Swal.fire({ icon: "error", title: "Error", text: err.message });
         }
     };
 
+    // ===== Edit =====
     const handleEdit = (row) => {
         setEditing(row.id);
         setForm({ date: row.date, revenue: row.revenue.toString(), expense: row.expense.toString() });
         setShowModal(true);
     };
 
+    // ===== Add / Update =====
     const handleSubmit = async (e) => {
         e.preventDefault();
         const payload = {
@@ -165,11 +164,8 @@ function ProfitLossList() {
         };
 
         try {
-            const url = editing
-                ? `http://localhost:3001/api/profitloss/${editing}`
-                : "http://localhost:3001/api/profitloss";
+            const url = editing ? `http://localhost:3001/api/profitloss/${editing}` : "http://localhost:3001/api/profitloss";
             const method = editing ? "PUT" : "POST";
-
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
@@ -181,9 +177,83 @@ function ProfitLossList() {
                 setEditing(null);
                 setShowModal(false);
                 fetchData();
+                Swal.fire({
+                    icon: "success",
+                    title: editing ? "Data updated successfully" : "Data added successfully",
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
             }
         } catch (err) {
             console.error(err);
+            Swal.fire({ icon: "error", title: "Error", text: err.message });
+        }
+    };
+
+    // ===== Import Excel =====
+    const handleImport = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            const dataFile = await file.arrayBuffer();
+            const workbook = XLSX.read(dataFile);
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const json = XLSX.utils.sheet_to_json(sheet);
+
+            for (const row of json) {
+                const payload = {
+                    date: row.Date,
+                    user_id: user.id,
+                    revenue: parseNumber(row.Revenue),
+                    expense: parseNumber(row.Expense),
+                    profitloss: parseNumber(row.Revenue) - parseNumber(row.Expense),
+                };
+                await fetch("http://localhost:3001/api/profitloss", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+            }
+            fetchData();
+            Swal.fire({ icon: "success", title: "Import successful", timer: 1500, showConfirmButton: false });
+        } catch (err) {
+            console.error(err);
+            Swal.fire({ icon: "error", title: "Import failed", text: err.message });
+        }
+    };
+
+    // ===== Export Excel =====
+    const handleExport = () => {
+        try {
+            const worksheet = XLSX.utils.json_to_sheet(
+                data.map((row) => ({
+                    Date: row.date,
+                    Revenue: row.revenue,
+                    Expense: row.expense,
+                    ProfitLoss: row.profitloss,
+                }))
+            );
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "ProfitLoss");
+            XLSX.writeFile(workbook, "ProfitLoss.xlsx");
+            Swal.fire({ icon: "success", title: "Export successful", timer: 1500, showConfirmButton: false });
+        } catch (err) {
+            Swal.fire({ icon: "error", title: "Export failed", text: err.message });
+        }
+    };
+
+    // ===== Download Template =====
+    const downloadTemplate = () => {
+        try {
+            const templateData = [{ Date: "YYYY-MM-DD", Revenue: 0, Expense: 0 }];
+            const worksheet = XLSX.utils.json_to_sheet(templateData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+            XLSX.writeFile(workbook, "ProfitLossTemplate.xlsx");
+            Swal.fire({ icon: "success", title: "Template downloaded", timer: 1500, showConfirmButton: false });
+        } catch (err) {
+            Swal.fire({ icon: "error", title: "Template download failed", text: err.message });
         }
     };
 
@@ -206,16 +276,31 @@ function ProfitLossList() {
             </div>
 
             <div className="d-flex justify-content-start mb-3">
-                <button
-                    className="btn btn-success"
-                    onClick={() => {
-                        setForm({ date: "", revenue: "", expense: "" });
-                        setEditing(null);
-                        setShowModal(true);
-                    }}
-                >
-                    + Add New
-                </button>
+                <div className="btn-group">
+                    <button
+                        className="btn btn-success"
+                        onClick={() => {
+                            setForm({ date: "", revenue: "", expense: "" });
+                            setEditing(null);
+                            setShowModal(true);
+                        }}
+                    >
+                        + Add New
+                    </button>
+
+                    <label className="btn btn-primary mb-0">
+                        <i className="bi bi-upload me-1"></i> Import
+                        <input type="file" accept=".xlsx, .xls" onChange={handleImport} hidden />
+                    </label>
+
+                    <button className="btn btn-secondary" onClick={handleExport}>
+                        <i className="bi bi-download me-1"></i> Export
+                    </button>
+
+                    <button className="btn btn-info" onClick={downloadTemplate}>
+                        <i className="bi bi-file-earmark-text me-1"></i> Template
+                    </button>
+                </div>
             </div>
 
             <ProfitLossTable
