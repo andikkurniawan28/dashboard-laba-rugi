@@ -26,12 +26,12 @@ const TicketModal = ({ show, onClose, onSubmit, form, setForm, editing }) => {
         <div className="modal-content">
           <form onSubmit={onSubmit}>
             <div className="modal-header">
-              <h5 className="modal-title">{editing ? "Edit Ticket" : "Add New Ticket"}</h5>
+              <h5 className="modal-title">{editing ? "Edit Tiket" : "Buat Tiket Baru"}</h5>
               <button type="button" className="btn-close" onClick={onClose}></button>
             </div>
             <div className="modal-body">
               <div className="mb-3">
-                <label>Description</label>
+                <label>Keterangan</label>
                 <textarea
                   className="form-control"
                   value={form.description}
@@ -42,10 +42,10 @@ const TicketModal = ({ show, onClose, onSubmit, form, setForm, editing }) => {
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" onClick={onClose}>
-                Cancel
+                Batal
               </button>
               <button type="submit" className="btn btn-primary">
-                Save
+                Simpan
               </button>
             </div>
           </form>
@@ -59,10 +59,10 @@ const TicketModal = ({ show, onClose, onSubmit, form, setForm, editing }) => {
 const TicketTable = ({ data, handleEdit, handleDelete, filterText }) => {
   const columns = [
     { name: "ID", selector: (row) => row.id, sortable: true, wrap: true },
-    { name: "Description", selector: (row) => row.description, sortable: true, wrap: true },
+    { name: "Keterangan", selector: (row) => row.description, sortable: true, wrap: true },
     { name: "Status", selector: (row) => row.status, sortable: true, cell: (row) => formatStatus(row.status) },
-    { name: "Created At", selector: (row) => row.created_at, sortable: true, wrap: true },
-    { name: "Updated At", selector: (row) => row.updated_at, sortable: true, wrap: true },
+    { name: "Dibuat pada", selector: (row) => row.created_at, sortable: true, wrap: true },
+    { name: "Diperbarui pada", selector: (row) => row.updated_at, sortable: true, wrap: true },
     {
       name: "Action",
       cell: (row) => (
@@ -71,7 +71,7 @@ const TicketTable = ({ data, handleEdit, handleDelete, filterText }) => {
             Edit
           </button>
           <button className="btn btn-danger btn-sm" onClick={() => handleDelete(row.id)}>
-            Delete
+            Hapus
           </button>
         </>
       ),
@@ -200,8 +200,8 @@ function TicketList() {
 
   return (
     <div className="container-fluid my-5 px-5">
+      <h2>Tiket</h2>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Ticket</h2>
         <div className="input-group" style={{ maxWidth: "300px" }}>
           <span className="input-group-text">
             <i className="bi bi-search"></i>
@@ -225,7 +225,7 @@ function TicketList() {
             setShowModal(true);
           }}
         >
-          + Add Ticket
+          + Buat Tiket
         </button>
       </div>
 

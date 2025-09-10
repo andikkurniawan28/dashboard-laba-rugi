@@ -61,12 +61,12 @@ const ChangePassword = () => {
           className="card-header text-white text-center"
           style={{ backgroundColor: "#222E3C" }}
         >
-          <h4 className="mb-0">Change Password</h4>
+          <h4 className="mb-0">Ganti Password</h4>
         </div>
         <div className="card-body">
           <form onSubmit={handleChangePassword}>
             <div className="mb-3">
-              <label className="form-label">Current Password</label>
+              <label className="form-label">Password Saat Ini</label>
               <input
                 type="password"
                 className="form-control"
@@ -76,7 +76,7 @@ const ChangePassword = () => {
               />
             </div>
             <div className="mb-3">
-              <label className="form-label">New Password</label>
+              <label className="form-label">Password Baru</label>
               <input
                 type="password"
                 className="form-control"
@@ -86,7 +86,7 @@ const ChangePassword = () => {
               />
             </div>
             <div className="mb-3">
-              <label className="form-label">Confirm New Password</label>
+              <label className="form-label">Konfirmasi Password Baru</label>
               <input
                 type="password"
                 className="form-control"

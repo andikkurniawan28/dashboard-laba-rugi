@@ -52,7 +52,7 @@ const Login = ({ setUser }) => {
             >
                 <div className="card-body p-4">
                     <h3 className="card-title text-center mb-4" style={{ color: "#222E3C" }}>
-                        Profit-Loss Dashboard
+                        Dashboard Laba
                     </h3>
                     <form onSubmit={handleLogin}>
                         <div className="mb-3">
@@ -95,7 +95,7 @@ const Login = ({ setUser }) => {
                         </button>
                     </form>
                     <p className="text-center mt-3 mb-0">
-                        Don't have an account?{" "}
+                        Belum punya akun?{" "}
                         <span
                             style={{
                                 color: "#222E3C",
@@ -104,7 +104,7 @@ const Login = ({ setUser }) => {
                             }}
                             onClick={() => navigate("/register")}
                         >
-                            Register
+                            Daftar
                         </span>
                     </p>
                 </div>

@@ -68,12 +68,12 @@ function Navbar() {
                                         <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                             <li>
                                                 <Link className="dropdown-item" to="/change-password">
-                                                    Change Password
+                                                    Ganti Password
                                                 </Link>
                                             </li>
                                             <li>
                                                 <Link className="dropdown-item" to="/ticket">
-                                                    Ticket
+                                                    Tiket
                                                 </Link>
                                             </li>
                                             <li>

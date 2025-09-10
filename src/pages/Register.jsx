@@ -62,11 +62,11 @@ const Register = () => {
             >
                 <div className="card-body p-4">
                     <h3 className="card-title text-center mb-4" style={{ color: "#222E3C" }}>
-                        Profit-Loss Dashboard
+                        Dashboard Laba
                     </h3>
                     <form onSubmit={handleRegister}>
                         <div className="mb-3">
-                            <label className="form-label fw-semibold">Organization</label>
+                            <label className="form-label fw-semibold">Nama Bisnis / Toko / Resto</label>
                             <input
                                 type="text"
                                 className="form-control"
@@ -77,7 +77,7 @@ const Register = () => {
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label fw-semibold">Full Name</label>
+                            <label className="form-label fw-semibold">Nama Lengkap Anda</label>
                             <input
                                 type="text"
                                 className="form-control"
@@ -103,7 +103,7 @@ const Register = () => {
                             <input
                                 type="text"
                                 className="form-control"
-                                placeholder="+62xxxx"
+                                placeholder="62xxxx"
                                 value={whatsapp}
                                 onChange={(e) => setWhatsapp(e.target.value)}
                                 required
@@ -133,11 +133,11 @@ const Register = () => {
                                 fontWeight: "600",
                             }}
                         >
-                            Register
+                            Daftar
                         </button>
                     </form>
                     <p className="text-center mt-3 mb-0">
-                        Already have an account?{" "}
+                        Sudah punya akun?{" "}
                         <span
                             style={{
                                 color: "#222E3C",

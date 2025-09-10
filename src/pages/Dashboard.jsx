@@ -30,10 +30,10 @@ const InsightCards = ({ insight }) => {
         (num ?? 0).toLocaleString("en", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
     const cards = [
-        { title: "Avg Revenue", value: insight?.avgRevenue, color: "text-success" },
-        { title: "Max Profit", value: insight?.maxProfit, color: "text-primary" },
-        { title: "Min Expense", value: insight?.minExpense, color: "text-danger" },
-        { title: "Max Revenue", value: insight?.maxRevenue, color: "text-success" },
+        { title: "Pendapatan Rata-rata", value: insight?.avgRevenue, color: "text-success" },
+        { title: "Laba Tertinggi", value: insight?.maxProfit, color: "text-primary" },
+        { title: "Beban Terendah", value: insight?.minExpense, color: "text-danger" },
+        { title: "Pendapatan Tertinggi", value: insight?.maxRevenue, color: "text-success" },
     ];
 
     return (
@@ -140,72 +140,72 @@ function Dashboard() {
 
             <div className="row mb-5">
                 <ChartCard
-                    title="Daily Revenue"
+                    title="Pendapatan Harian"
                     type="line"
                     labels={dailyLabels}
-                    datasets={[{ label: "Revenue", data: dailyRevenue, borderColor: "green", backgroundColor: "rgba(0,255,0,0.3)" }]}
+                    datasets={[{ label: "Pendapatan", data: dailyRevenue, borderColor: "green", backgroundColor: "rgba(0,255,0,0.3)" }]}
                 />
                 <ChartCard
-                    title="Daily Expense"
+                    title="Beban Harian"
                     type="line"
                     labels={dailyLabels}
-                    datasets={[{ label: "Expense", data: dailyExpense, borderColor: "red", backgroundColor: "rgba(255,0,0,0.3)" }]}
+                    datasets={[{ label: "Beban", data: dailyExpense, borderColor: "red", backgroundColor: "rgba(255,0,0,0.3)" }]}
                 />
                 <ChartCard
-                    title="Daily Profit/Loss"
+                    title="Laba Harian"
                     type="line"
                     labels={dailyLabels}
-                    datasets={[{ label: "Profit/Loss", data: dailyProfit, borderColor: "blue", backgroundColor: "rgba(0,0,255,0.3)" }]}
+                    datasets={[{ label: "Laba", data: dailyProfit, borderColor: "blue", backgroundColor: "rgba(0,0,255,0.3)" }]}
                 />
 
                 {/* ✅ Tambahan Chart Gabungan */}
                 <ChartCard
-                    title="Daily Overview (Revenue vs Expense vs Profit)"
+                    title="Ringkasan Harian"
                     type="line"
                     labels={dailyLabels}
                     datasets={[
-                        { label: "Revenue", data: dailyRevenue, borderColor: "green", backgroundColor: "rgba(0,255,0,0.2)", fill: true },
-                        { label: "Expense", data: dailyExpense, borderColor: "red", backgroundColor: "rgba(255,0,0,0.2)", fill: true },
-                        { label: "Profit/Loss", data: dailyProfit, borderColor: "blue", backgroundColor: "rgba(0,0,255,0.2)", fill: true },
+                        { label: "Pendapatan", data: dailyRevenue, borderColor: "green", backgroundColor: "rgba(0,255,0,0.2)", fill: true },
+                        { label: "Beban", data: dailyExpense, borderColor: "red", backgroundColor: "rgba(255,0,0,0.2)", fill: true },
+                        { label: "Laba", data: dailyProfit, borderColor: "blue", backgroundColor: "rgba(0,0,255,0.2)", fill: true },
                     ]}
                 />
 
                 <ChartCard
-                    title="Monthly Revenue"
+                    title="Pendapatan Bulanan"
                     type="bar"
                     labels={monthlyLabels}
-                    datasets={[{ label: "Revenue", data: monthlyRevenue, backgroundColor: "green" }]}
+                    datasets={[{ label: "Pendapatan", data: monthlyRevenue, backgroundColor: "green" }]}
                 />
                 <ChartCard
-                    title="Monthly Expense"
+                    title="Beban Bulanan"
                     type="bar"
                     labels={monthlyLabels}
-                    datasets={[{ label: "Expense", data: monthlyExpense, backgroundColor: "red" }]}
+                    datasets={[{ label: "Beban", data: monthlyExpense, backgroundColor: "red" }]}
                 />
                 <ChartCard
-                    title="Monthly Profit/Loss"
+                    title="Laba Bulanan"
                     type="bar"
                     labels={monthlyLabels}
-                    datasets={[{ label: "Profit/Loss", data: monthlyProfit, backgroundColor: "blue" }]}
+                    datasets={[{ label: "Laba", data: monthlyProfit, backgroundColor: "blue" }]}
                 />
                 <ChartCard
-                    title="Monthly Profit Margin (%)"
+                    title="Profit Margin (%) Bulanan"
                     type="line"
                     labels={monthlyLabels}
                     datasets={[{ label: "Profit Margin", data: monthlyMargin, borderColor: "orange", backgroundColor: "rgba(255,165,0,0.3)" }]}
                 />
                 <ChartCard
-                    title="Yearly Overview"
+                    title="Ringkasan Tahun Ini"
                     type="bar"
                     labels={yearlyLabels}
                     datasets={[
-                        { label: "Revenue", data: yearlyRevenue, backgroundColor: "green" },
-                        { label: "Expense", data: yearlyExpense, backgroundColor: "red" },
-                        { label: "Profit/Loss", data: yearlyProfit, backgroundColor: "blue" },
+                        { label: "Pendapatan", data: yearlyRevenue, backgroundColor: "green" },
+                        { label: "Beban", data: yearlyExpense, backgroundColor: "red" },
+                        { label: "Laba", data: yearlyProfit, backgroundColor: "blue" },
                     ]}
                 />
                 <ChartCard
-                    title="Yearly Profit Margin (%)"
+                    title="Profit Margin (%) Tahunan"
                     type="line"
                     labels={yearlyLabels}
                     datasets={[{ label: "Profit Margin", data: yearlyMargin, borderColor: "purple", backgroundColor: "rgba(128,0,128,0.3)" }]}

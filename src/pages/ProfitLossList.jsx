@@ -78,18 +78,43 @@ const ProfitLossModal = ({ show, onClose, onSubmit, form, setForm, editing }) =>
 // ===== Table Component =====
 const ProfitLossTable = ({ data, handleEdit, handleDelete, filterText }) => {
     const columns = [
-        { name: "Date", selector: (row) => row.date, sortable: true },
-        { name: "Revenue", selector: (row) => row.revenue, sortable: true, right: true, cell: (row) => formatNumber(row.revenue) },
-        { name: "Expense", selector: (row) => row.expense, sortable: true, right: true, cell: (row) => formatNumber(row.expense) },
-        { name: "Profit/Loss", selector: (row) => row.profitloss, sortable: true, right: true, cell: (row) => formatNumber(row.profitloss) },
+        { name: "Tanggal", selector: (row) => row.date, sortable: true },
+        { name: "Pendapatan", selector: (row) => row.revenue, sortable: true, right: true, cell: (row) => formatNumber(row.revenue) },
+        { name: "Beban", selector: (row) => row.expense, sortable: true, right: true, cell: (row) => formatNumber(row.expense) },
+        { name: "Laba", selector: (row) => row.profitloss, sortable: true, right: true, cell: (row) => formatNumber(row.profitloss) },
         {
             name: "Action",
             cell: (row) => (
-                <>
-                    <button className="btn btn-primary btn-sm me-2" onClick={() => handleEdit(row)}>Edit</button>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(row.id)}>Delete</button>
-                </>
+                <div className="dropdown">
+                    <button
+                        className="btn btn-sm btn-secondary dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        Actions
+                    </button>
+                    <ul className="dropdown-menu">
+                        <li>
+                            <button
+                                className="dropdown-item"
+                                onClick={() => handleEdit(row)}
+                            >
+                                Edit
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                className="dropdown-item text-danger"
+                                onClick={() => handleDelete(row.id)}
+                            >
+                                Hapus
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             ),
+
         },
     ];
 
@@ -290,11 +315,15 @@ function ProfitLossList() {
 
     return (
         <div className="container-fluid my-5 px-5">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2>Data</h2>
-                <div className="d-flex justify-content-end mb-2">
+            <h2>Data</h2>
+
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+                {/* Search */}
+                <div className="mb-2 mb-md-0 w-100 w-md-auto">
                     <div className="input-group" style={{ maxWidth: "300px" }}>
-                        <span className="input-group-text"><i className="bi bi-search"></i></span>
+                        <span className="input-group-text">
+                            <i className="bi bi-search"></i>
+                        </span>
                         <input
                             type="text"
                             className="form-control"
@@ -306,37 +335,38 @@ function ProfitLossList() {
                 </div>
             </div>
 
-            <div className="d-flex justify-content-start mb-3">
-                <div className="btn-group">
-                    <button
-                        className="btn btn-success"
-                        onClick={() => {
-                            setForm({ date: "", revenue: "", expense: "" });
-                            setEditing(null);
-                            setShowModal(true);
-                        }}
-                    >
-                        + Add New
-                    </button>
+            {/* Buttons */}
+            <div className="d-flex flex-wrap gap-2 mb-3">
+                <button
+                    className="btn btn-success"
+                    onClick={() => {
+                        setForm({ date: "", revenue: "", expense: "" });
+                        setEditing(null);
+                        setShowModal(true);
+                    }}
+                >
+                    + Tambah Data
+                </button>
 
-                    <label className="btn btn-primary mb-0">
-                        <i className="bi bi-upload me-1"></i> Import from Excel
-                        <input type="file" accept=".xlsx, .xls" onChange={handleImport} hidden />
-                    </label>
+                <label className="btn btn-primary mb-0">
+                    <i className="bi bi-upload me-1"></i> Impor dari Excel
+                    <input type="file" accept=".xlsx, .xls" onChange={handleImport} hidden />
+                </label>
 
-                    <button className="btn btn-secondary" onClick={handleExport}>
-                        <i className="bi bi-download me-1"></i> Export to Excel
-                    </button>
+                <button className="btn btn-secondary" onClick={handleExport}>
+                    <i className="bi bi-download me-1"></i> Ekspor ke Excel
+                </button>
 
-                    <button className="btn btn-info" onClick={downloadTemplate}>
-                        <i className="bi bi-file-earmark-text me-1"></i> Download Template
-                    </button>
+                <button className="btn btn-info" onClick={downloadTemplate}>
+                    <i className="bi bi-file-earmark-text me-1"></i> Unduh Template
+                </button>
 
-                    <button className="btn btn-success" onClick={() => (window.location.href = "/api-docs")}>
-                        <i className="bi bi-code-slash me-1"></i> API Documentation
-                    </button>
-
-                </div>
+                <button
+                    className="btn btn-success"
+                    onClick={() => (window.location.href = "/api-docs")}
+                >
+                    <i className="bi bi-code-slash me-1"></i> Dokumentasi API
+                </button>
             </div>
 
             <ProfitLossTable
