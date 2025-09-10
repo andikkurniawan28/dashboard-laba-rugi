@@ -24,7 +24,7 @@ const ChangePassword = () => {
         return;
       }
 
-      const res = await fetch("http://localhost:3001/api/change-password", {
+      const res = await fetch("http://147.139.177.186:3378/api/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -114,7 +114,7 @@ function ProfitLossList() {
 
     const fetchData = async () => {
         try {
-            const res = await fetch("http://localhost:3001/api/profitloss/list", {
+            const res = await fetch("http://147.139.177.186:3378/api/profitloss/list", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userID: user.id }),
@@ -134,7 +134,7 @@ function ProfitLossList() {
     const handleDelete = async (id) => {
         if (!window.confirm("Yakin hapus data ini?")) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/profitloss/${id}`, { method: "DELETE" });
+            const res = await fetch(`http://147.139.177.186:3378/api/profitloss/${id}`, { method: "DELETE" });
             const dataRes = await res.json();
             if (!res.ok) throw new Error(dataRes?.error || "Failed to delete");
             fetchData();
@@ -164,7 +164,7 @@ function ProfitLossList() {
         };
 
         try {
-            const url = editing ? `http://localhost:3001/api/profitloss/${editing}` : "http://localhost:3001/api/profitloss";
+            const url = editing ? `http://147.139.177.186:3378/api/profitloss/${editing}` : "http://147.139.177.186:3378/api/profitloss";
             const method = editing ? "PUT" : "POST";
 
             const res = await fetch(url, {
@@ -215,7 +215,7 @@ function ProfitLossList() {
                 };
 
                 try {
-                    const res = await fetch("http://localhost:3001/api/profitloss", {
+                    const res = await fetch("http://147.139.177.186:3378/api/profitloss", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload),

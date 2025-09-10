@@ -99,7 +99,7 @@ function TicketList() {
   // ===== Fetch Data =====
   const fetchData = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/ticket/list", {
+      const res = await fetch("http://147.139.177.186:3378/api/ticket/list", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userID: user.id }),
@@ -119,7 +119,7 @@ function TicketList() {
   const handleDelete = async (id) => {
     if (!window.confirm("Yakin hapus ticket ini?")) return;
     try {
-      const res = await fetch(`http://localhost:3001/api/ticket/${id}`, { method: "DELETE" });
+      const res = await fetch(`http://147.139.177.186:3378/api/ticket/${id}`, { method: "DELETE" });
       const dataRes = await res.json();
       if (!res.ok) throw new Error(dataRes?.error || "Failed to delete");
       fetchData();
@@ -145,7 +145,7 @@ function TicketList() {
       product_id: 1,
     };
     try {
-      const res = await fetch("http://localhost:3001/api/ticket", {
+      const res = await fetch("http://147.139.177.186:3378/api/ticket", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -170,7 +170,7 @@ function TicketList() {
       product_id: 1,
     };
     try {
-      const res = await fetch(`http://localhost:3001/api/ticket/${editing}`, {
+      const res = await fetch(`http://147.139.177.186:3378/api/ticket/${editing}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

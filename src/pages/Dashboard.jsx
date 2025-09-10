@@ -89,7 +89,7 @@ function Dashboard() {
                 const user = JSON.parse(localStorage.getItem("user"));
                 if (!user) return;
 
-                const res = await fetch("http://localhost:3001/api/profitloss/stats", {
+                const res = await fetch("http://147.139.177.186:3378/api/profitloss/stats", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ user_id: user.id }),

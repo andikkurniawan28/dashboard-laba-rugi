@@ -18,7 +18,7 @@ function Navbar() {
         >
             <div className="container-fluid">
                 <Link className="navbar-brand" to="/">
-                    Profit-Loss Dashboard  ({user.organization})
+                    {user.organization}
                 </Link>
 
                 <button
