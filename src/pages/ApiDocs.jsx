@@ -15,7 +15,7 @@ function ApiDocs() {
             </p>
 
             <pre className="bg-dark text-white p-3 rounded">
-                {`POST http://localhost:3001/api/profitloss
+                {`POST http://147.139.177.186:3378/api/profitloss
 
 Request Body (JSON):
 {

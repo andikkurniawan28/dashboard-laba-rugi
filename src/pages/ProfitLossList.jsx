@@ -16,12 +16,12 @@ const ProfitLossModal = ({ show, onClose, onSubmit, form, setForm, editing }) =>
                 <div className="modal-content">
                     <form onSubmit={onSubmit}>
                         <div className="modal-header">
-                            <h5 className="modal-title">{editing ? "Edit Record" : "Add New Record"}</h5>
+                            <h5 className="modal-title">{editing ? "Edit Data" : "Tambah Data"}</h5>
                             <button type="button" className="btn-close" onClick={onClose}></button>
                         </div>
                         <div className="modal-body">
                             <div className="mb-3">
-                                <label>Date</label>
+                                <label>Tanggal</label>
                                 <input
                                     type="date"
                                     className="form-control"
@@ -31,7 +31,7 @@ const ProfitLossModal = ({ show, onClose, onSubmit, form, setForm, editing }) =>
                                 />
                             </div>
                             <div className="mb-3">
-                                <label>Revenue</label>
+                                <label>Pendapatan</label>
                                 <input
                                     type="text"
                                     className="form-control"
@@ -41,7 +41,7 @@ const ProfitLossModal = ({ show, onClose, onSubmit, form, setForm, editing }) =>
                                 />
                             </div>
                             <div className="mb-3">
-                                <label>Expense</label>
+                                <label>Beban (Biaya)</label>
                                 <input
                                     type="text"
                                     className="form-control"
@@ -51,7 +51,7 @@ const ProfitLossModal = ({ show, onClose, onSubmit, form, setForm, editing }) =>
                                 />
                             </div>
                             <div className="mb-3">
-                                <label>Profit / Loss</label>
+                                <label>Laba</label>
                                 <input
                                     type="text"
                                     className="form-control"
