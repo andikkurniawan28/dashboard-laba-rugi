@@ -74,69 +74,6 @@ func loginProcess(c *fiber.Ctx) error {
 // =======================================
 // REGISTER PROCESS
 // =======================================
-// func registerProcess(c *fiber.Ctx) error {
-// 	type RegisterRequest struct {
-// 		Organization string `json:"organization"`
-// 		Name         string `json:"name"`
-// 		Email        string `json:"email"`
-// 		Whatsapp     string `json:"whatsapp"`
-// 		Password     string `json:"password"`
-// 	}
-
-// 	req := new(RegisterRequest)
-// 	if err := c.BodyParser(req); err != nil {
-// 		return c.Status(400).JSON(fiber.Map{"error": "invalid input"})
-// 	}
-
-// 	// cek email sudah terpakai atau belum
-// 	var existing int
-// 	err := db.QueryRow("SELECT COUNT(*) FROM users WHERE email = ?", req.Email).Scan(&existing)
-// 	if err != nil {
-// 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-// 	}
-// 	if existing > 0 {
-// 		return c.Status(400).JSON(fiber.Map{"error": "email already registered"})
-// 	}
-
-// 	// hash password
-// 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-// 	if err != nil {
-// 		return c.Status(500).JSON(fiber.Map{"error": "failed to hash password"})
-// 	}
-
-// 	// generate app_key
-// 	appKey := generateRandomString(8)
-
-// 	// insert user baru
-// 	result, err := db.Exec(`
-// 		INSERT INTO users (role_id, name, email, password, is_active, access_to_product_1, organization, whatsapp, app_key)
-// 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-// 	`,
-// 		3, req.Name, req.Email, string(hashedPassword),
-// 		1, 1, req.Organization, req.Whatsapp, appKey,
-// 	)
-// 	if err != nil {
-// 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-// 	}
-
-// 	lastID, _ := result.LastInsertId()
-
-// 	return c.JSON(fiber.Map{
-// 		"message": "register success",
-// 		"user": fiber.Map{
-// 			"id":                  lastID,
-// 			"role_id":             3,
-// 			"name":                req.Name,
-// 			"email":               req.Email,
-// 			"organization":        req.Organization,
-// 			"whatsapp":            req.Whatsapp,
-// 			"app_key":             appKey,
-// 			"is_active":           1,
-// 			"access_to_product_1": 1,
-// 		},
-// 	})
-// }
-
 func registerProcess(c *fiber.Ctx) error {
 	type RegisterRequest struct {
 		Organization string `json:"organization"`
@@ -266,12 +203,18 @@ func generateRandomString(n int) string {
 	return string(bytes)
 }
 
+// =======================================
+// HELPER: Generate Verification Token
+// =======================================
 func generateVerificationToken(email, appKey string) string {
 	data := fmt.Sprintf("%s:%s:%d", email, appKey, time.Now().Unix())
 	hash := sha256.Sum256([]byte(data))
 	return hex.EncodeToString(hash[:])
 }
 
+// =======================================
+// HELPER: Send Verification Email
+// =======================================
 func sendVerificationEmail(to string, link string) error {
 	from := "optimateknologiindustri@gmail.com"
 	password := "gzew ksdw kdef bcex" // ⚠️ ini App Password, bukan password Gmail biasa
@@ -296,6 +239,9 @@ func sendVerificationEmail(to string, link string) error {
 	return nil
 }
 
+// =======================================
+// VERIFY EMAIL HANDLER
+// =======================================
 func verifyEmailHandler(c *fiber.Ctx) error {
 	email := c.Query("email")
 	token := c.Query("token")

@@ -30,7 +30,7 @@ const InsightCards = ({ insight }) => {
         (num ?? 0).toLocaleString("en", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
     const cards = [
-        { title: "Pendapatan Rata-rata", value: insight?.avgRevenue, color: "text-success" },
+        { title: "Pendapatan Rata-rata Bulan Ini", value: insight?.avgRevenue, color: "text-success" },
         { title: "Laba Tertinggi", value: insight?.maxProfit, color: "text-primary" },
         { title: "Beban Terendah", value: insight?.minExpense, color: "text-danger" },
         { title: "Pendapatan Tertinggi", value: insight?.maxRevenue, color: "text-success" },
