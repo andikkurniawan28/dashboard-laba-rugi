@@ -62,7 +62,7 @@ const Register = () => {
             >
                 <div className="card-body p-4">
                     <h3 className="card-title text-center mb-4" style={{ color: "#222E3C" }}>
-                        Dashboard Laba
+                        Dashboard Laba Rugi
                     </h3>
                     <form onSubmit={handleRegister}>
                         <div className="mb-3">
