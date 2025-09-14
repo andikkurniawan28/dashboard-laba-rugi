@@ -15,7 +15,8 @@ function ApiDocs() {
             </p>
 
             <pre className="bg-dark text-white p-3 rounded">
-                {`POST http://147.139.177.186:3378/api/profitloss
+                {`POST ${process.env.REACT_APP_API_URL}/profitloss
+
 
 Request Body (JSON):
 {
